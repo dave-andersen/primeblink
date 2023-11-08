@@ -13,11 +13,11 @@ Spits some diagnostics to its usb port - notably, which times it thinks are prim
     mydir/embassy
     mydir/clockblink
 
-Adjust .cargo/config.toml to set three build env variables:
+Adjust `.cargo/config.toml` to set three build env variables:
 
- -  CHRONO_TZ_TIMEZONE_FILTER appropriately for your location.
- -  WIFI_SSID to your ssid
- -  WIFI_PASSWORD to your WPA2 wifi password
+ -  `CHRONO_TZ_TIMEZONE_FILTER` appropriately for your location (it defaults to having all US timezones)
+ -  `WIFI_SSID` to your ssid
+ -  `WIFI_PASSWORD` to your WPA2 wifi password
 
 If you have an open network, you can instead switch the join_wpa2
 line to the commented-out join_open line.
