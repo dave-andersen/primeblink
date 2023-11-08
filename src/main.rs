@@ -164,7 +164,7 @@ pub async fn led_task(control: &'static mut cyw43::Control<'_>) -> ! {
         let cur_time = WALL_CLOCK.get_time().await as u32;
         if is_prime(cur_time) {
             control.gpio_set(0, true).await;
-            log::info!("{} is probably prime", cur_time);
+            log::info!("{} is prime", cur_time);
         } else {
             control.gpio_set(0, false).await;
         }
