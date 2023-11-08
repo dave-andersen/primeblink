@@ -6,15 +6,15 @@
 
 use core::panic;
 
-
 use cyw43_pio::PioSpi;
 use defmt::*;
 use embassy_executor::Spawner;
 use embassy_net::{udp::PacketMetadata, Stack, StackResources};
-use embassy_rp::gpio::{Level, Output};use embassy_rp::pio::Pio;
-use embassy_rp::peripherals::{DMA_CH0, PIN_23, PIN_25, PIO0, USB};
-use embassy_rp::usb::Driver;
 use embassy_rp::bind_interrupts;
+use embassy_rp::gpio::{Level, Output};
+use embassy_rp::peripherals::{DMA_CH0, PIN_23, PIN_25, PIO0, USB};
+use embassy_rp::pio::Pio;
+use embassy_rp::usb::Driver;
 use embassy_time::{Duration, Timer};
 use static_cell::make_static;
 use {defmt_rtt as _, panic_probe as _};
@@ -115,7 +115,10 @@ async fn net_time_task(stack: &'static Stack<cyw43::NetDriver<'static>>) -> ! {
                     .set_time_from_unix(ref_timestamp as u64 - NTP_TO_UNIX_EPOCH_OFFSET)
                     .await;
                 let now = embassy_time::Instant::now().as_secs();
-                log::info!("Updated core timestamp to NTP time {}", ref_timestamp as u64 - now);
+                log::info!(
+                    "Updated core timestamp to NTP time {}",
+                    ref_timestamp as u64 - now
+                );
             }
         }
         Timer::after(NTP_UPDATE_INTERVAL).await;
@@ -129,13 +132,13 @@ pub fn modexp(a: u32, n: u32, m: u32) -> u32 {
     let mut n = n;
     let mut r = 1u32;
     while n > 0 {
-      if (n & 1) == 1 {
-        r = ((r as u64 * a as u64) % m as u64) as u32;
-      }
-      a = ((a as u64 * a as u64) % m as u64) as u32;
-      n = n >> 1;
-   }
-   r
+        if (n & 1) == 1 {
+            r = ((r as u64 * a as u64) % m as u64) as u32;
+        }
+        a = ((a as u64 * a as u64) % m as u64) as u32;
+        n = n >> 1;
+    }
+    r
 }
 
 pub fn miller_rabin(n: u32, base: u32) -> bool {
@@ -143,20 +146,27 @@ pub fn miller_rabin(n: u32, base: u32) -> bool {
     let tz = nminusone.trailing_zeros();
     let d = nminusone >> tz;
     let ad = modexp(base, d, n);
-    if ad == 1 || ad == n-1 { return true; }
+    if ad == 1 || ad == n - 1 {
+        return true;
+    }
     for r in 1..tz {
-        if modexp(base, d<<r, n) == n-1 { return true; }
+        if modexp(base, d << r, n) == n - 1 {
+            return true;
+        }
     }
     false
 }
 
 pub fn is_prime(n: u32) -> bool {
     let tiny_primes: [u32; 5] = [2, 3, 5, 7, 11];
-    if tiny_primes.contains(&n) { return true; }
-    if n & 1 == 0 { return false; }
+    if tiny_primes.contains(&n) {
+        return true;
+    }
+    if n & 1 == 0 {
+        return false;
+    }
     tiny_primes.iter().all(|&base| miller_rabin(n, base))
 }
-  
 
 #[embassy_executor::task]
 pub async fn led_task(control: &'static mut cyw43::Control<'_>) -> ! {
@@ -177,7 +187,6 @@ async fn logger_task(driver: Driver<'static, USB>) {
     embassy_usb_logger::run!(1024, log::LevelFilter::Info, driver);
 }
 
-
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
     let p = embassy_rp::init(Default::default());
@@ -188,7 +197,7 @@ async fn main(spawner: Spawner) {
     let driver = Driver::new(p.USB, Irqs);
     spawner.spawn(logger_task(driver)).unwrap();
 
-        let pwr = Output::new(p.PIN_23, Level::Low);
+    let pwr = Output::new(p.PIN_23, Level::Low);
     let cs = Output::new(p.PIN_25, Level::High);
     let mut pio = Pio::new(p.PIO0, WifiIrqs);
     let spi = PioSpi::new(
