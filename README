@@ -1,3 +1,8 @@
+This embassy-based program for the Raspberry Pi Pico W will blink the on-board LED
+every time the UNIX time is (probably) prime. Uses wifi to get the time via a
+horrible SNTP hack. Doesn't (yet?) do a full miller-rabin test, just does a Fermat
+test to the base 2, so there may be some false positives.
+
 BUILDING:
 
   Place in the same top-level directory into which you have checked out Embassy
