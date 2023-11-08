@@ -124,22 +124,39 @@ async fn net_time_task(stack: &'static Stack<cyw43::NetDriver<'static>>) -> ! {
 
 static WALL_CLOCK: WallClock = WallClock::new();
 
-pub fn is_prime(n: u32) -> bool {
-    if n & 1 != 1 { return false; }
-    // Single fermat test for now: 2^(n-1) mod n == 1
-    // The below code implements basic binary modular exponentiation
-    let mut a = 2u32;
-    let mut xp = n - 1;
+pub fn modexp(a: u32, n: u32, m: u32) -> u32 {
+    let mut a = a;
+    let mut n = n;
     let mut r = 1u32;
-    while xp > 0 {
-      if xp & 1 == 1 {
-        r = ((r as u64 * a as u64) % n as u64) as u32;
+    while n > 0 {
+      if (n & 1) == 1 {
+        r = ((r as u64 * a as u64) % m as u64) as u32;
       }
-      a = ((a as u64 * a as u64) % n as u64) as u32;
-      xp >>= 1;
-    }
-    r == 1
+      a = ((a as u64 * a as u64) % m as u64) as u32;
+      n = n >> 1;
+   }
+   r
 }
+
+pub fn miller_rabin(n: u32, base: u32) -> bool {
+    let nminusone = n - 1;
+    let tz = nminusone.trailing_zeros();
+    let d = nminusone >> tz;
+    let ad = modexp(base, d, n);
+    if ad == 1 || ad == n-1 { return true; }
+    for r in 1..tz {
+        if modexp(base, d<<r, n) == n-1 { return true; }
+    }
+    false
+}
+
+pub fn is_prime(n: u32) -> bool {
+    let tiny_primes: [u32; 5] = [2, 3, 5, 7, 11];
+    if tiny_primes.contains(&n) { return true; }
+    if n & 1 == 0 { return false; }
+    tiny_primes.iter().all(|&base| miller_rabin(n, base))
+}
+  
 
 #[embassy_executor::task]
 pub async fn led_task(control: &'static mut cyw43::Control<'_>) -> ! {
