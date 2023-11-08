@@ -1,0 +1,11 @@
+[target.'cfg(all(target_arch = "arm", target_os = "none"))']
+runner = "probe-rs run --chip RP2040"
+
+[build]
+target = "thumbv6m-none-eabi"        # Cortex-M0 and Cortex-M0+
+
+[env]
+DEFMT_LOG = "debug"
+CHRONO_TZ_TIMEZONE_FILTER = "(UTC|US/.*)"
+WIFI_SSID = "YOUR_SSID_HERE"
+WIFI_PASSWORD = "YOUR_WPA2_PASSWORD_HERE"

@@ -1,0 +1,25 @@
+BUILDING:
+
+  Place in the same top-level directory into which you have checked out Embassy
+  (or adjust the paths in the Cargo.toml appropriately)
+
+    mydir/embassy
+    mydir/clockblink
+
+Adjust .cargo/config.toml to set three build env variables:
+
+ -  CHRONO_TZ_TIMEZONE_FILTER appropriately for your location.
+ -  WIFI_SSID to your ssid
+ -  WIFI_PASSWORD to your WPA2 wifi password
+
+If you have an open network, you can instead switch the join_wpa2
+line to the commented-out join_open line.
+
+in clockblink, run:
+
+    cargo build -r
+    elf2uf2-rs target/thumbv6m-none-eabi/release/primeblink primeblink.uf2
+
+And then copy primeblink.uf2 to whereever your rpi-pico w is mounted when you
+boot it with the BOOTSEL button pressed. (Or use a debugging setup
+and program it appropriately to your config.)
