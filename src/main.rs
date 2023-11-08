@@ -136,7 +136,7 @@ pub fn modexp(a: u32, n: u32, m: u32) -> u32 {
             r = ((r as u64 * a as u64) % m as u64) as u32;
         }
         a = ((a as u64 * a as u64) % m as u64) as u32;
-        n = n >> 1;
+        n >>= 1;
     }
     r
 }
