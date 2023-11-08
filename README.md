@@ -5,7 +5,7 @@ test to the base 2, so there may be some false positives.
 
 Spits some diagnostics to its usb port - notably, which times it thinks are prime.
 
-## BUILDING
+## Building
 
   Place in the same top-level directory into which you have checked out [Embassy](https://github.com/embassy-rs/embassy)
   (or adjust the paths in the Cargo.toml appropriately)
