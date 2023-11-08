@@ -50,6 +50,8 @@ async fn net_task(stack: &'static Stack<cyw43::NetDriver<'static>>) -> ! {
     stack.run().await
 }
 
+// The world's worst SNTP client.
+// TODO: see if the sntp crate will work with Embassy instead.
 const NTP_UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60);
 #[embassy_executor::task]
 async fn net_time_task(stack: &'static Stack<cyw43::NetDriver<'static>>) -> ! {
@@ -71,7 +73,7 @@ async fn net_time_task(stack: &'static Stack<cyw43::NetDriver<'static>>) -> ! {
             .await;
         let time_server_ip = match dns_query_results {
             Ok(results) => {
-                if results.len() > 0 {
+                if !results.is_empty() {
                     log::info!("Got DNS result: {:?}", results[0]);
                     match results[0] {
                         embassy_net::IpAddress::Ipv4(address) => address,
@@ -97,9 +99,8 @@ async fn net_time_task(stack: &'static Stack<cyw43::NetDriver<'static>>) -> ! {
             log::error!("failed to bind udp socket: {:?}", e);
             continue;
         }
-        for i in 0..48 {
-            buf[i] = 0;
-        }
+
+        buf.iter_mut().for_each(|m| *m = 0);
         buf[0] = (4 << 3) | 3; // 4<<3 = version=4, 3 = client
         let time_server_port = 123;
         let time_server = embassy_net::IpEndpoint::new(time_server_ip.into(), time_server_port);
@@ -124,8 +125,9 @@ async fn net_time_task(stack: &'static Stack<cyw43::NetDriver<'static>>) -> ! {
 static WALL_CLOCK: WallClock = WallClock::new();
 
 pub fn is_prime(n: u32) -> bool {
-    // Single fermat test for now
     if n & 1 != 1 { return false; }
+    // Single fermat test for now: 2^(n-1) mod n == 1
+    // The below code implements basic binary modular exponentiation
     let mut a = 2u32;
     let mut xp = n - 1;
     let mut r = 1u32;
@@ -134,7 +136,7 @@ pub fn is_prime(n: u32) -> bool {
         r = ((r as u64 * a as u64) % n as u64) as u32;
       }
       a = ((a as u64 * a as u64) % n as u64) as u32;
-      xp = xp >> 1;
+      xp >>= 1;
     }
     r == 1
 }
@@ -169,9 +171,7 @@ async fn main(spawner: Spawner) {
     let driver = Driver::new(p.USB, Irqs);
     spawner.spawn(logger_task(driver)).unwrap();
 
-    // Main task will continue forward and handle wifi
-
-    let pwr = Output::new(p.PIN_23, Level::Low);
+        let pwr = Output::new(p.PIN_23, Level::Low);
     let cs = Output::new(p.PIN_25, Level::High);
     let mut pio = Pio::new(p.PIO0, WifiIrqs);
     let spi = PioSpi::new(
