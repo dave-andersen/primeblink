@@ -1,8 +1,7 @@
 This embassy-based program for the Raspberry Pi Pico W will blink the on-board LED
 every time the UNIX time is (probably) prime. Uses wifi to get the time via a
 horrible SNTP hack. Uses a Miller-Rabin test good up through unix time 2,152,302,898,747,
-which is expected to be sufficient for most uses. Note, however, that the time-keeping
-uses 32 bit unsigned ints and so will break in 2038. It also doesn't parse the NTP epoch
+which is expected to be sufficient for most uses. Note, however, that the time-keeping doesn't parse the NTP epoch
 number, so it will break first on February 7, 2036.
 
 Spits some diagnostics to its usb port - notably, which times it thinks are prime.
