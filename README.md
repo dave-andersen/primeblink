@@ -5,9 +5,9 @@ test to the base 2, so there may be some false positives.
 
 Spits some diagnostics to its usb port - notably, which times it thinks are prime.
 
-BUILDING:
+## BUILDING
 
-  Place in the same top-level directory into which you have checked out Embassy
+  Place in the same top-level directory into which you have checked out [Embassy](https://github.com/embassy-rs/embassy)
   (or adjust the paths in the Cargo.toml appropriately)
 
     mydir/embassy
@@ -27,6 +27,8 @@ in clockblink, run:
     cargo build -r
     elf2uf2-rs target/thumbv6m-none-eabi/release/primeblink primeblink.uf2
 
-And then copy primeblink.uf2 to whereever your rpi-pico w is mounted when you
+## Installing on a Pico
+
+Copy primeblink.uf2 to whereever your rpi-pico w is mounted when you
 boot it with the BOOTSEL button pressed. (Or use a debugging setup
 and program it appropriately to your config.)
